@@ -1,0 +1,25 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 500MB
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/demo
+    username: root
+    password: admin
+  jpa:
+    hibernate.ddl-auto: update
+    generate-ddl: true
+    show-sql: true
+
+
+app:
+  file:
+    upload-dir: ./fileserver/uploads/files
+    storage:
+      mapping: file:///C:/MyGithub/itext-spring-example/fileserver/uploads
+
+
+server:
+  port: 8098
