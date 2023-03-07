@@ -108,7 +108,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void generateAndStorePDF(Long id) {
-        Person person=personRepository.findById(id).orElseThrow();
+        Person person = personRepository.findById(id).orElseThrow();
         ByteArrayInputStream bis = GeneratePDF.generate(person);
         storeGeneratedFile(bis, person);
     }
@@ -131,7 +131,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void savePerson(Person person) { //TODO FOR DEMO
+    public void savePerson(Person person) {
         personRepository.save(person);
     }
 }
