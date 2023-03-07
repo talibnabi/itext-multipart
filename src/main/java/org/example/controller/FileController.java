@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.example.dto.request.UploadRequest;
 import org.example.dto.response.UploadResponse;
+import org.example.model.Person;
 import org.example.service.FileService;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +39,8 @@ public class FileController {
 
 
     @PostMapping(value = "generate/upload")
-    public ResponseEntity<?> uploadAndGenerateFile() {
-        fileService.generateAndStorePDF();
+    public ResponseEntity<?> uploadAndGenerateFile(@RequestParam Long id) {
+        fileService.generateAndStorePDF(id);
         return ResponseEntity.ok().build();
     }
 
@@ -70,4 +71,9 @@ public class FileController {
         }
     }
 
+    @PostMapping("save")
+    public ResponseEntity<?> savePerson(@RequestBody Person person) {
+        fileService.savePerson(person);
+        return ResponseEntity.ok().build();
+    }
 }

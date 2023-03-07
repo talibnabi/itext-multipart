@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 
 
 import org.springframework.core.env.Environment;
@@ -108,16 +107,17 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void generateAndStorePDF() {
-        List<Person> people = personRepository.findAll();
-        ByteArrayInputStream bis = GeneratePDF.generate(people);
-        storeGeneratedFile(bis);
+    public void generateAndStorePDF(Long id) {
+        Person person=personRepository.findById(id).orElseThrow();
+        ByteArrayInputStream bis = GeneratePDF.generate(person);
+        storeGeneratedFile(bis, person);
     }
+
 
     @SneakyThrows
     @Override
-    public void storeGeneratedFile(InputStream bis) {
-        String fileName = "person.pdf";
+    public void storeGeneratedFile(InputStream bis, Person person) {
+        String fileName = person.getName() + ".pdf";
         String contentType = "Content-Disposition";
         byte[] contentBytes = StreamUtils.copyToByteArray(bis);
         MultipartFile multipartFile = new MyMultipartFile(contentBytes, fileName, contentType);
@@ -128,6 +128,11 @@ public class FileServiceImpl implements FileService {
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + fileName + ". Please try again!", ex);
         }
+    }
+
+    @Override
+    public void savePerson(Person person) { //TODO FOR DEMO
+        personRepository.save(person);
     }
 }
 
