@@ -1,12 +1,12 @@
 package org.example.service.impl;
 
-
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.example.service.FileService;
 import org.example.util.GeneratePDF;
+import org.example.util.MyMultipartFile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -21,27 +21,26 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
-@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
+
 
     @Autowired
     private PersonRepository personRepository;
+
+
     private final Path fileStorageLocation;
 
     @Value("${app.file.upload-dir}")
     private String uploadDir;
 
-
-    @Autowired
-    public FileServiceImpl(Environment env) {
-        this.fileStorageLocation = Paths.get(env.getProperty("app.file.upload-dir", "./uploads/files"))
+    public FileServiceImpl(Environment environment) {
+        this.fileStorageLocation = Paths.get(environment.getProperty("app.file.upload-dir", "./uploads/files"))
                 .toAbsolutePath().normalize();
 
         try {
@@ -125,48 +124,7 @@ public class FileServiceImpl implements FileService {
         String fileName = "person.pdf";
         String contentType = "Content-Disposition";
         byte[] contentBytes = StreamUtils.copyToByteArray(bis);
-
-        MultipartFile multipartFile = new MultipartFile() {
-            @Override
-            public String getName() {
-                return fileName;
-            }
-
-            @Override
-            public String getOriginalFilename() {
-                return fileName;
-            }
-
-            @Override
-            public String getContentType() {
-                return contentType;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return contentBytes.length == 0;
-            }
-
-            @Override
-            public long getSize() {
-                return contentBytes.length;
-            }
-
-            @Override
-            public byte[] getBytes() throws IOException {
-                return contentBytes;
-            }
-
-            @Override
-            public InputStream getInputStream() throws IOException {
-                return new ByteArrayInputStream(contentBytes);
-            }
-
-            @Override
-            public void transferTo(File file) throws IOException, IllegalStateException {
-                Files.write(file.toPath(), contentBytes);
-            }
-        };
+        MultipartFile multipartFile = new MyMultipartFile(contentBytes, fileName, contentType);
         try {
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             Files.copy(multipartFile.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
