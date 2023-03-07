@@ -109,13 +109,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void generateAndStorePDF() {
-        List<Person> people = findAll();
+        List<Person> people = personRepository.findAll();
         ByteArrayInputStream bis = GeneratePDF.generate(people);
         storeGeneratedFile(bis);
-    }
-
-    public List<Person> findAll() {
-        return personRepository.findAll();
     }
 
     @SneakyThrows
