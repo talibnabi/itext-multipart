@@ -11,8 +11,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "im_origin_certificate")
-public class OriginCertificate {
+@Table(name = "im_origin_certificate_model")
+public class OriginCertificateModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
