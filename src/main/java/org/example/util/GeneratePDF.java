@@ -29,7 +29,7 @@ public class GeneratePDF {
             PdfPTable table = new PdfPTable(5);
 
             table.setWidthPercentage(80);
-            table.setWidths(new int[]{3, 5, 5, 5, 7});
+            table.setWidths(new int[]{1, 5, 5, 5, 7});
 
             Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
 

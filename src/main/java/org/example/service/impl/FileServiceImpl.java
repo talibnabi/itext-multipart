@@ -1,6 +1,9 @@
 package org.example.service.impl;
 
 import lombok.SneakyThrows;
+import org.example.exception.FileCouldNotStoreException;
+import org.example.exception.FileSameException;
+import org.example.exception.InvalidFileNameException;
 import org.example.model.Person;
 import org.example.repository.PersonRepository;
 import org.example.service.FileService;
@@ -18,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 
 import org.springframework.core.env.Environment;
@@ -52,39 +56,47 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
+    public Boolean isPDF(MultipartFile file) {
+        return Objects.equals(file.getContentType(), "application/pdf");
+    }
+
+    @Override
     public String storeFile(MultipartFile file) {
+
         // Normalize file name
-        String fileName =
-                file.getResource().getFilename();
-
-        try {
-            // Check if the filename contains invalid characters
+        if (isPDF(file) && loadFile(file.getResource().getFilename()) != null) {
+            String fileName = file.getResource().getFilename();
+            Resource resource = loadFile(file.getResource().getFilename());
+            String fileNameLoadedFile = resource.getFilename();
             assert fileName != null;
-            if (fileName.contains("..")) {
-                throw new RuntimeException(
-                        "Sorry! Filename contains invalid path sequence " + fileName);
+            if (fileName.equals(fileNameLoadedFile)) {
+                throw new FileSameException("filename must not be same");
             }
+            try {
+                // Check if the filename contains invalid characters
+                if (fileName.contains("..")) {
+                    throw new InvalidFileNameException("Sorry! Filename contains invalid path sequence " + fileName);
+                }
 
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                Path targetLocation = this.fileStorageLocation.resolve(fileName);
+                Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            return fileName;
-        } catch (IOException ex) {
-            throw new RuntimeException("Could not store file " + fileName + ". Please try again!", ex);
+                return fileName;
+            } catch (IOException ex) {
+                throw new FileCouldNotStoreException("Could not store file " + fileName + ". Please try again!");
+            }
+        } else {
+            throw new FileCouldNotStoreException("File must be PDF");
         }
     }
 
-
-    public boolean deleteFile(String fileName) {
+    @SneakyThrows
+    @Override
+    public Boolean deleteFile(String fileName) {
         Path filePath = Paths.get(uploadDir + File.separator + fileName);
         if (Files.exists(filePath)) {
-            try {
-                Files.delete(filePath);
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+            Files.delete(filePath);
+            return true;
         } else {
             return false;
         }
@@ -105,6 +117,7 @@ public class FileServiceImpl implements FileService {
             throw new RuntimeException("Failed to load file: " + filename, e);
         }
     }
+
 
     @Override
     public void generateAndStorePDF(Long id) {

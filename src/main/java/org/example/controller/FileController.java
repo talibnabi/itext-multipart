@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,26 +33,25 @@ public class FileController {
     public ResponseEntity<UploadResponse> uploadFile(UploadRequest uploadRequest) {
         String fileName = fileService.storeFile(uploadRequest.getFile());
 
-        UploadResponse uploadResponse = new UploadResponse(fileName, uploadRequest.getFullName(), uploadRequest.getDateOfBirth());
+        UploadResponse uploadResponse = new UploadResponse(fileName, LocalDate.now());
 
         return ResponseEntity.ok().body(uploadResponse);
     }
 
 
-    @PostMapping(value = "generate/upload")
+    @PostMapping(value = "generate/upload", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> uploadAndGenerateFile(@RequestParam Long id) {
         fileService.generateAndStorePDF(id);
         return ResponseEntity.ok().build();
     }
 
     @SneakyThrows
-    @GetMapping("/files/{filename}")
+    @GetMapping(value = "/files/{filename}")
     public void downloadFile(@PathVariable String filename, HttpServletResponse response) {
         Resource fileResource = fileService.loadFile(filename);
 
         Resource resource = fileService.loadFile(filename);
         byte[] data = Files.readAllBytes(Paths.get(resource.getURI()));
-
 
         response.setContentType(MediaType.APPLICATION_PDF_VALUE);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileResource.getFilename() + "\"");
@@ -63,7 +63,7 @@ public class FileController {
 
     @DeleteMapping("{fileName}")
     public ResponseEntity<String> deleteFile(@PathVariable String fileName) {
-        boolean isDeleted = fileService.deleteFile(fileName);
+        Boolean isDeleted = fileService.deleteFile(fileName);
         if (isDeleted) {
             return new ResponseEntity<>("File deleted successfully", HttpStatus.OK);
         } else {

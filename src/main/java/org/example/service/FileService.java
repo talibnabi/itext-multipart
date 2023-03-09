@@ -9,7 +9,7 @@ import java.io.InputStream;
 public interface FileService {
     String storeFile(MultipartFile file);
 
-    boolean deleteFile(String fileName);
+    Boolean deleteFile(String fileName);
 
     Resource loadFile(String filename);
 
@@ -19,5 +19,7 @@ public interface FileService {
 
 
     void savePerson(Person person);
+
+    Boolean isPDF(MultipartFile file);
 }
 
