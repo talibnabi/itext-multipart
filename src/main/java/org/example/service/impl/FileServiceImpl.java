@@ -105,7 +105,6 @@ public class FileServiceImpl implements FileService {
     @Override
     public Resource loadFile(String filename) {
         Path filePath = fileStorageLocation.resolve(filename);
-
         try {
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists() || resource.isReadable()) {
