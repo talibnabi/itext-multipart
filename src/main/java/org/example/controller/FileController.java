@@ -48,13 +48,12 @@ public class FileController {
     @SneakyThrows
     @GetMapping(value = "/files/{filename}")
     public void downloadFile(@PathVariable String filename, HttpServletResponse response) {
-        Resource fileResource = fileService.loadFile(filename);
 
         Resource resource = fileService.loadFile(filename);
         byte[] data = Files.readAllBytes(Paths.get(resource.getURI()));
 
         response.setContentType(MediaType.APPLICATION_PDF_VALUE);
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileResource.getFilename() + "\"");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"");
         response.setContentLength(data.length);
 
         response.getOutputStream().write(data);

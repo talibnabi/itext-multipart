@@ -102,18 +102,16 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @SneakyThrows
     @Override
     public Resource loadFile(String filename) {
         Path filePath = fileStorageLocation.resolve(filename);
-        try {
-            Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("Failed to load file: " + filename);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load file: " + filename, e);
+        Resource resource = new UrlResource(filePath.toUri());
+        System.out.println(resource);
+        if (resource.exists() || resource.isReadable()) {
+            return resource;
+        } else {
+            throw new RuntimeException("Failed to load file: " + filename);
         }
     }
 
